@@ -24,9 +24,7 @@
     <%= form.file_field :icon %>
     <%= form.hidden_field :icon_cache %>
   </div>
-
   <div class="form-group">
-    <%= form.hidden_field :owner_id, value: current_user.id %>
     <%= form.submit I18n.t('views.button.create'), class: 'btn btn-primary' %>
   </div>
 <% end %>

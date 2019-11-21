@@ -1,11 +1,10 @@
 class TeamsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_team, only: %i[show edit update destroy]
-
+  before_action :set_team, only: %i[show edit update destroy authority]
+  before_action :set_owner, only: %i[edit]
   def index
     @teams = Team.all
   end
-
   def show
     @working_team = @team
     change_keep_team(current_user, @team)
@@ -15,7 +14,13 @@ class TeamsController < ApplicationController
     @team = Team.new
   end
 
-  def edit; end
+  def edit;end
+
+  def set_owner
+    unless current_user.id == @team.owner_id
+      redirect_to @team
+    end
+  end
 
   def create
     @team = Team.new(team_params)
@@ -30,8 +35,14 @@ class TeamsController < ApplicationController
   end
 
   def update
-    if @team.update(team_params)
+  if params[:owner_id]
+    @team.update(owner_id: params[:owner_id])
+    user=User.find(@team.owner_id)
+    ChangeTeamLeaderMailer.change_team_leader(user, @team).deliver
+    redirect_to @team, notice: 'leader changed'
+  elsif @team.update(team_params)
       redirect_to @team, notice: I18n.t('views.messages.update_team')
+    
     else
       flash.now[:error] = I18n.t('views.messages.failed_to_save_team')
       render :edit
