@@ -21,18 +21,17 @@ class AgendasController < ApplicationController
     end
   end
   def destroy
-    if current_user.id == @agenda.user_id
-
-      @agenda.destroy
-     
-      @agenda.team.assigns.each do |assign|
-      AssignMailer.assign_mail(assign.user.email,assign.user.password).deliver
+    if current_user.id==@agenda.user_id
+@agenda.destroy
+@agenda.team.assigns.each do |assign|  
+AssignMailer.assign_mail(assign.user.email,assign.user.password).deliver
 end
-      redirect_to dashboard_url, notice: 'Agenda deleted'
+redirect_to dashboard_url, notice: "agenda deleted "
     else
-      redirect_to dashboard_url, notice: 'Agenda not deleted. you must be the owner to delete that agenda'
+      redirect_to dashboard_url, notice: "you can't delete other owner's agenda"  
+    end
+
   end
-end
   private
   def set_agenda
     @agenda = Agenda.find(params[:id])
